@@ -2,17 +2,17 @@ use std::fs::File;
 use std::io::Write;
 use dotenvy::dotenv;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
     let base_url = std::env::var("BASE_URL")
         .expect("Could not load environment variable.");
 
-    let client = reqwest::Client::new();
-
-    let response = client.get(&base_url).send().await?;
-    let body = response.text().await?;
+    let response = reqwest::blocking::get(&base_url);
+    let body = response
+        .expect("Could not get response")
+        .text()
+        .unwrap_or_default();
 
     let document = scraper::Html::parse_document(&body);
 
